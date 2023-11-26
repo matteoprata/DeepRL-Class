@@ -1,0 +1,7 @@
+swing
+gym[all]
+# gym==0.26.2  # pip install gym[all]
+keyboard==0.13.5
+numpy==1.24.3
+torch==2.1.1
+matplotlib
