@@ -15,7 +15,7 @@ class DQN(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(2, 2)),
             nn.Flatten(),
-            nn.Linear(300, h_dimension),
+            nn.Linear(432, h_dimension),
             nn.ReLU(),
             nn.Linear(h_dimension, n_actions)
         )

@@ -7,6 +7,24 @@ import matplotlib.pyplot as plt
 import random
 import numpy as np
 
+import json
+
+
+def write_json_to_file(data, file_path):
+    """
+    Write JSON data to a file.
+
+    Parameters:
+    - data: A dictionary representing the JSON data.
+    - file_path: The path where the JSON file will be written.
+    """
+    try:
+        with open(file_path, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+        print(f"JSON data successfully written to {file_path}")
+    except Exception as e:
+        print(f"Error writing JSON data to {file_path}: {e}")
+
 
 def make_all_paths(is_dynamic_root=True, dir_name="rl_class"):
     ROOT = "data"
@@ -62,7 +80,7 @@ def preprocess_frame_car(frame):
     def normalize(frame):
         return frame / 255.0
 
-    frame = crop(frame)
+    # frame = crop(frame)
     frame = make_img_gray(frame)
     frame = frame.astype(float)
     frame = normalize(frame)
@@ -83,3 +101,4 @@ def seed_everything():
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False  # Disable if deterministic mode is desired
+

@@ -43,7 +43,7 @@ class DQNAgent:
                  lr=1e-3,
                  memory_len=5000,
                  frames=3,
-                 hidden_dimensions=None,
+                 hidden_dimension=None,
                  device=None):
 
         self.device = device
@@ -56,8 +56,8 @@ class DQNAgent:
         self.memory = deque(maxlen=self.memory_len)
         self.action_space = action_space
 
-        self.target_model = DQN(frames, len(self.action_space), 150).to(self.device)
-        self.model =        DQN(frames, len(self.action_space), 150).to(self.device)
+        self.target_model = DQN(frames, len(self.action_space), hidden_dimension).to(self.device)
+        self.model =        DQN(frames, len(self.action_space), hidden_dimension).to(self.device)
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
@@ -71,11 +71,14 @@ class DQNAgent:
     def act(self, state=None, is_only_random=False):
         if self.is_explore() or is_only_random:
             action_index = np.random.randint(len(self.action_space))
+            # print(action_index, self.action_space[action_index])
         else:
             # plot_three_images(np.array(state[0, :, :, :]))
+            # print(torch.sum(state))
             q_values = self.target_model(state)[0]
             action_index = torch.argmax(q_values)
             # print("qvalues", q_values)
+            # print("predcited q values", q_values)
             print("predicted action", action_index)
         return self.action_space[action_index]
 
