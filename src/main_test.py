@@ -21,10 +21,9 @@ if __name__ == '__main__':
 
     # https://www.gymlibrary.dev/environments/box2d/car_racing/
     env = gym.make('CarRacing-v2', render_mode="human")  # , render_mode='human')
-
     agent.load_model("data/working_models/trial_660.h5")
 
-    for e in range(Config.STARTING_EPISODE+333, Config.ENDING_EPISODE + 1):
+    for e in range(Config.STARTING_EPISODE, Config.ENDING_EPISODE + 1):
         env.episode_id = e
 
         init_state = env.reset()[0]  # 96, 96, 3 pixels image RGB
@@ -36,25 +35,18 @@ if __name__ == '__main__':
 
         while True:
             state_tensor = torch.Tensor(state_queue).unsqueeze(0).to(device)
-            action = agent.act(state_tensor)
-
+            action = agent.act(state_tensor, is_only_exploit=True)
             # (2) EXECUTE ACTION (for several steps)
             # (3) EVALUATE S' STATE, REWARD
-            reward = 0
             for _ in range(Config.SKIP_FRAMES):
-                # execute action
                 next_state, _, epi_done, _, _ = env.step(action)
-                # util.plot_frame_car(next_state)
                 if epi_done:
                     break
 
-            # util.plot_state_car(np.array(state_queue), title="STATE 0")
-            # process state S'
+
             next_state = util.preprocess_frame_car(next_state)
             next_state_queue = deque([frame for frame in state_queue], maxlen=Config.N_FRAMES)
             next_state_queue.append(next_state)
-            # util.plot_state_car(np.array(next_state_queue), title="STATE 1")
-
             next_state_tensor = torch.Tensor(next_state_queue).unsqueeze(0).to(device)
 
             # S = S'

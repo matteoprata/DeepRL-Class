@@ -50,8 +50,8 @@ class DQNAgent:
         flip = np.random.rand() <= self.epsilon
         return flip
 
-    def act(self, state=None, is_only_random=False):
-        if self.is_explore() or is_only_random:
+    def act(self, state=None, is_only_random=False, is_only_exploit=False):
+        if not is_only_exploit and self.is_explore() or is_only_random:
             action_index = np.random.randint(len(self.action_space))
             # print(action_index, self.action_space[action_index])
         else:
