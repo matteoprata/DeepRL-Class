@@ -38,11 +38,12 @@ if __name__ == '__main__':
             action = agent.act(state_tensor, is_only_exploit=True)
             # (2) EXECUTE ACTION (for several steps)
             # (3) EVALUATE S' STATE, REWARD
+            reward = 0
             for _ in range(Config.SKIP_FRAMES):
-                next_state, _, epi_done, _, _ = env.step(action)
+                next_state, r, epi_done, _, _ = env.step(action)
+                reward += r
                 if epi_done:
                     break
-
 
             next_state = util.preprocess_frame_car(next_state)
             next_state_queue = deque([frame for frame in state_queue], maxlen=Config.N_FRAMES)

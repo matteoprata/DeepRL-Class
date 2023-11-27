@@ -30,13 +30,13 @@ if __name__ == '__main__':
     for e in range(Config.STARTING_EPISODE, Config.ENDING_EPISODE + 1):
         env.episode_id = e
 
-        init_state = env.reset()[0]                         # 96, 96, 3 pixels image RGB
-        init_state = util.preprocess_frame_car(init_state)  # 96, 96 pixels image GRAY
-
         epi_total_reward = 0
         epi_negative_reward_counter = 0
         epi_time_frame_counter = 1
         epi_done = False
+
+        init_state = env.reset()[0]  # 96, 96, 3 pixels image RGB
+        init_state = util.preprocess_frame_car(init_state)  # 96, 96 pixels image GRAY
 
         # (1) EVALUATE STATE: S
         state_queue = deque([init_state] * Config.N_FRAMES, maxlen=Config.N_FRAMES)
