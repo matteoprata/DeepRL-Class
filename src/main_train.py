@@ -9,24 +9,7 @@ import numpy as np
 from gym.wrappers import RecordVideo
 import random
 import src.util as util
-
-
-class Config:
-
-    STARTING_EPISODE = 1
-    ENDING_EPISODE = 1000
-    SKIP_FRAMES = 2
-    TRAINING_BATCH_SIZE = 64
-    UPDATE_TARGET_MODEL_FREQUENCY = 5
-    N_FRAMES = 3
-    HIDDEN_DIMENSION_FC = 150
-    action_space = [
-        (-1, 1, 0.2), (0, 1, 0.2), (1, 1, 0.2),  # Action Space Structure
-        (-1, 1, 0), (0, 1, 0), (1, 1, 0),  # (Steering Wheel, Gas, Break)
-        (-1, 0, 0.2), (0, 0, 0.2), (1, 0, 0.2),  # Range        -1~1       0~1   0~1
-        (-1, 0, 0), (0, 0, 0), (1, 0, 0)
-    ]
-
+from src.config import Config
 
 if __name__ == '__main__':
 
@@ -84,7 +67,7 @@ if __name__ == '__main__':
 
             # extra bonus for the model if it uses full gas
             if action[1] == 1 and action[2] == 0:
-                reward *= 1.5
+                reward *= Config.GAS_WEIGHT
 
             epi_total_reward += reward
 

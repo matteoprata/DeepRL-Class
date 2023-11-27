@@ -10,26 +10,8 @@ from src.rl_algorithm.dqn.DQN import DQN
 from matplotlib import pyplot as plt
 
 
-def plot_three_images(data):
-    """
-    Plots three images from a 3x93x93 array using plt.imshow().
-
-    Parameters:
-    - data: 3x93x93 array containing image data for three images.
-    """
-    # Create a figure with three subplots
-    fig, axs = plt.subplots(1, 3, figsize=(10, 4))
-
-    # Plot each image using imshow()
-    for i in range(3):
-        axs[i].imshow(data[i], cmap='gray')  # You can adjust the colormap if needed
-        axs[i].axis('off')  # Turn off axis labels
-
-    plt.show()
-
 # DQN https://github.com/andywu0913/OpenAI-GYM-CarRacing-DQN/tree/master
 # https://docs.cleanrl.dev/rl-algorithms/dqn/#explanation-of-the-logged-metrics
-#
 # PPO https://github.com/xtma/pytorch_car_caring/tree/master
 
 
@@ -73,13 +55,9 @@ class DQNAgent:
             action_index = np.random.randint(len(self.action_space))
             # print(action_index, self.action_space[action_index])
         else:
-            # plot_three_images(np.array(state[0, :, :, :]))
-            # print(torch.sum(state))
             q_values = self.target_model(state)[0]
             action_index = torch.argmax(q_values)
-            # print("qvalues", q_values)
-            # print("predcited q values", q_values)
-            print("predicted action", action_index)
+            # print("predicted action", action_index)
         return self.action_space[action_index]
 
     def memorize(self, state, action, reward, next_state, done):
@@ -117,9 +95,9 @@ class DQNAgent:
             self.epsilon *= self.epsilon_decay
 
     def load_model(self, name):
-        model = torch.load(name)
-        model.eval()
-        return model
+        self.model = torch.load(name)
+        self.target_model = torch.load(name)
+        self.model.eval()
 
     def save_model(self, name):
         torch.save(self.target_model, name)
