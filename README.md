@@ -1,8 +1,8 @@
 
-# OpenAI GYM CarRacing DQN in Pytorch
+# Car Racing with DeepRL in Pytorch
 
 This repository implements Deep Q Network (DQN) (CNN-based) using PyTorch to train a car in driving a virtual racetrack 
-from OpenAI gym. 🏎️🤖
+from OpenAI gym 🏎️🤖
 
 ## Usage
 
