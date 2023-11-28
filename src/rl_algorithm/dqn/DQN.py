@@ -23,4 +23,3 @@ class DQN(nn.Module):
     def forward(self, x):
         o = self.layers_cnn(x)  # (BS, ACTIONS)
         return o
-

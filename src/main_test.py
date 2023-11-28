@@ -11,33 +11,37 @@ import random
 import src.util as util
 from src.config import Config
 
-if __name__ == '__main__':
 
-    util.seed_everything()
+def test_car_racing():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('>> Using device:', device)
 
-    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.action_space, device=device, hidden_dimension=Config.HIDDEN_DIMENSION_FC)
-
     # https://www.gymlibrary.dev/environments/box2d/car_racing/
     env = gym.make('CarRacing-v2', render_mode="human")  # , render_mode='human')
-    agent.load_model("data/working_models/trial_660.h5")
+    util.seed_everything(seed=Config.SEED)
 
-    for e in range(Config.STARTING_EPISODE, Config.ENDING_EPISODE + 1):
+    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.action_space, device=device,
+                     hidden_dimension=Config.HIDDEN_DIMENSION_FC)
+    agent.load_model("data/working_models/trial_660.h5")
+    # agent.load_model("data/working_models/trial_825.h5")
+
+    PICKED_EPISODES = [1, 3, 5]
+    for e in PICKED_EPISODES:
         env.episode_id = e
 
-        init_state = env.reset()[0]  # 96, 96, 3 pixels image RGB
+        init_state = env.reset(seed=e)[0]  # 96, 96, 3 pixels image RGB
         init_state = util.preprocess_frame_car(init_state)  # 96, 96 pixels image GRAY
 
         # (1) EVALUATE STATE: S
         state_queue = deque([init_state] * Config.N_FRAMES, maxlen=Config.N_FRAMES)
-        state_tensor = torch.Tensor(state_queue).unsqueeze(0).to(device)
+        epi_n_neg_rew = 0
 
         while True:
-            state_tensor = torch.Tensor(state_queue).unsqueeze(0).to(device)
+            state_tensor = torch.Tensor(np.array(state_queue)).unsqueeze(0).to(device)
             action = agent.act(state_tensor, is_only_exploit=True)
             # (2) EXECUTE ACTION (for several steps)
             # (3) EVALUATE S' STATE, REWARD
+
             reward = 0
             for _ in range(Config.SKIP_FRAMES):
                 next_state, r, epi_done, _, _ = env.step(action)
@@ -45,11 +49,18 @@ if __name__ == '__main__':
                 if epi_done:
                     break
 
+            epi_n_neg_rew = epi_n_neg_rew + 1 if reward <= 0 else 0  # counts consecutive negative rewards
+            if epi_n_neg_rew >= 100:  # took a wrong path, interrupt
+                break
+
             next_state = util.preprocess_frame_car(next_state)
             next_state_queue = deque([frame for frame in state_queue], maxlen=Config.N_FRAMES)
             next_state_queue.append(next_state)
-            next_state_tensor = torch.Tensor(next_state_queue).unsqueeze(0).to(device)
 
             # S = S'
             state_queue = next_state_queue
-        env.close()
+    env.close()
+
+
+if __name__ == '__main__':
+    test_car_racing()

@@ -55,7 +55,7 @@ def plot_state_car(data, title=None):
     # Plot each image using imshow()
     for i in range(data.shape[0]):
         axs[i].imshow(data[i], cmap='gray')  # You can adjust the colormap if needed
-        axs[i].axis('off')  # Turn off axis labels
+        axs[i].axis('off')                   # Turn off axis labels
 
     plt.title(title)
     plt.show()
@@ -88,9 +88,8 @@ def preprocess_frame_car(frame):
     return frame
 
 
-def seed_everything():
+def seed_everything(seed=42):
     # Set seed for Python random module
-    seed = 42
     random.seed(seed)
 
     # Set seed for NumPy
@@ -100,5 +99,4 @@ def seed_everything():
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False  # Disable if deterministic mode is desired
-
+    torch.backends.cudnn.benchmark = False  # disable if deterministic mode is desired

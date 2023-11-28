@@ -11,23 +11,24 @@ import random
 import src.util as util
 from src.config import Config
 
-if __name__ == '__main__':
 
-    util.seed_everything()
+def train_car_racing():
+    util.seed_everything(seed=Config.SEED)
     PATH_ROOT = util.make_all_paths(is_dynamic_root=True)
-    util.write_json_to_file(dict(Config.__dict__), file_path=PATH_ROOT+"/config.json")
+    util.write_json_to_file(dict(Config.__dict__), file_path=PATH_ROOT + "config.json")
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('>> Using device:', device)
 
-    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.action_space, device=device, hidden_dimension=Config.HIDDEN_DIMENSION_FC)
+    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.action_space, device=device,
+                     hidden_dimension=Config.HIDDEN_DIMENSION_FC)
 
     # https://www.gymlibrary.dev/environments/box2d/car_racing/
     env = gym.make('CarRacing-v2', render_mode="rgb_array")  # , render_mode='human')
     env = RecordVideo(env, PATH_ROOT + 'videos', episode_trigger=lambda x: x % Config.UPDATE_TARGET_MODEL_FREQUENCY == 0)
 
     epi_total_rewards = []
-    for e in range(Config.STARTING_EPISODE, Config.ENDING_EPISODE + 1):
+    for e in range(Config.STARTING_EPISODE_TRAIN, Config.ENDING_EPISODE_TRAIN + 1):
         env.episode_id = e
 
         epi_total_reward = 0
@@ -35,16 +36,15 @@ if __name__ == '__main__':
         epi_time_frame_counter = 1
         epi_done = False
 
-        init_state = env.reset()[0]  # 96, 96, 3 pixels image RGB
+        init_state = env.reset(seed=e)[0]  # 96, 96, 3 pixels image RGB
         init_state = util.preprocess_frame_car(init_state)  # 96, 96 pixels image GRAY
 
         # (1) EVALUATE STATE: S
         state_queue = deque([init_state] * Config.N_FRAMES, maxlen=Config.N_FRAMES)
-        state_tensor = torch.Tensor(state_queue).unsqueeze(0).to(device)
         # util.plot_state_car(np.array(state_queue))  # visualize S0
 
         while True:
-            state_tensor = torch.Tensor(state_queue).unsqueeze(0).to(device)
+            state_tensor = torch.Tensor(np.array(state_queue)).unsqueeze(0).to(device)
             action = agent.act(state_tensor)
 
             # (2) EXECUTE ACTION (for several steps)
@@ -78,7 +78,7 @@ if __name__ == '__main__':
             next_state_queue.append(next_state)
             # util.plot_state_car(np.array(next_state_queue), title="STATE 1")
 
-            next_state_tensor = torch.Tensor(next_state_queue).unsqueeze(0).to(device)
+            next_state_tensor = torch.Tensor(np.array(next_state_queue)).unsqueeze(0).to(device)
 
             # (5) STORE OBSERVATIONS
             # Memorizing saving state, action reward tuples
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         stats_string = 'Episode: {}/{}, Scores(Time Frames): {}, Total Rewards: {:.2}, Epsilon: {:.2}'
         print(stats_string.format(
             e,
-            Config.ENDING_EPISODE,
+            Config.ENDING_EPISODE_TRAIN,
             epi_time_frame_counter,
             float(epi_total_reward),
             float(agent.epsilon))
@@ -121,5 +121,10 @@ if __name__ == '__main__':
 
             # swap model
             agent.update_target_model()
-            util.write_json_to_file({"CUM_REW": epi_total_rewards}, PATH_ROOT+"/stats.json")
-        env.close()
+            util.write_json_to_file({"CUM_REW": epi_total_rewards}, PATH_ROOT + "/stats.json")
+
+    env.close()
+
+
+if __name__ == '__main__':
+    train_car_racing()
