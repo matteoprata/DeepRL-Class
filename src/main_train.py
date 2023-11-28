@@ -20,7 +20,7 @@ def train_car_racing():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('>> Using device:', device)
 
-    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.action_space, device=device,
+    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.ACTION_SPACE, device=device,
                      hidden_dimension=Config.HIDDEN_DIMENSION_FC)
 
     # https://www.gymlibrary.dev/environments/box2d/car_racing/

@@ -10,9 +10,10 @@ from gym.wrappers import RecordVideo
 import random
 import src.util as util
 from src.config import Config
+import argparse
 
 
-def test_car_racing():
+def test_car_racing(model_to_load):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('>> Using device:', device)
 
@@ -20,10 +21,10 @@ def test_car_racing():
     env = gym.make('CarRacing-v2', render_mode="human")  # , render_mode='human')
     util.seed_everything(seed=Config.SEED)
 
-    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.action_space, device=device,
+    agent = DQNAgent(frames=Config.N_FRAMES, action_space=Config.ACTION_SPACE, device=device,
                      hidden_dimension=Config.HIDDEN_DIMENSION_FC)
-    agent.load_model("data/working_models/trial_660.h5")
-    # agent.load_model("data/working_models/trial_825.h5")
+
+    agent.load_model(model_to_load)
 
     PICKED_EPISODES = [1, 3, 5]
     for e in PICKED_EPISODES:
@@ -62,5 +63,13 @@ def test_car_racing():
     env.close()
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Description of your program')
+    parser.add_argument('-m', '--mod', help='Pretrained model file.', required=False, default="data/working_models/trial_660.h5")
+    args = vars(parser.parse_args())
+    return args
+
+
 if __name__ == '__main__':
-    test_car_racing()
+    args = parse_args()
+    test_car_racing(model_to_load=args['mod'])

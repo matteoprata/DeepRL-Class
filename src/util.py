@@ -26,6 +26,27 @@ def write_json_to_file(data, file_path):
         print(f"Error writing JSON data to {file_path}: {e}")
 
 
+def read_json_from_file(file_path):
+    """
+    Read JSON data from a file.
+
+    Parameters:
+    - file_path: The path of the JSON file to be read.
+
+    Returns:
+    - A dictionary representing the JSON data.
+    - If there is an error reading the file, returns None.
+    """
+    try:
+        with open(file_path, 'r') as json_file:
+            data = json.load(json_file)
+        print(f"JSON data successfully read from {file_path}")
+        return data
+    except Exception as e:
+        print(f"Error reading JSON data from {file_path}: {e}")
+        return None
+
+
 def make_all_paths(is_dynamic_root=True, dir_name="rl_class"):
     ROOT = "data"
 

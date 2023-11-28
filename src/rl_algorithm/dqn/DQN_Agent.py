@@ -53,7 +53,7 @@ class DQNAgent:
     def act(self, state=None, is_only_random=False, is_only_exploit=False):
         if not is_only_exploit and self.is_explore() or is_only_random:
             action_index = np.random.randint(len(self.action_space))
-            # print(action_index, self.action_space[action_index])
+            # print(action_index, self.ACTION_SPACE[action_index])
         else:
             q_values = self.target_model(state)[0]
             action_index = torch.argmax(q_values)
@@ -73,7 +73,7 @@ class DQNAgent:
             target = self.model(state)[0]
             train_state.append(target)
 
-            target_copy = target.detach().clone().to(self.device)   #  torch.Tensor(target).to(self.device)
+            target_copy = target.detach().clone().to(self.device)
             if done:
                 target_copy[action_index] = reward
             else:
