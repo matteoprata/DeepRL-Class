@@ -26,20 +26,21 @@ def test_car_racing(model_to_load):
 
     agent.load_model(model_to_load)
 
-    PICKED_EPISODES = [1, 3, 5]
+    PICKED_EPISODES = [1]
     for e in PICKED_EPISODES:
         env.episode_id = e
 
-        init_state = env.reset(seed=e)[0]  # 96, 96, 3 pixels image RGB
+        init_state = env.reset(seed=e)[0]                   # 96, 96, 3 pixels image RGB
         init_state = util.preprocess_frame_car(init_state)  # 96, 96 pixels image GRAY
 
         # (1) EVALUATE STATE: S
+        # [S0, S0, S0] > [S1, S0, S0] > [S2, S1, S0] > [S3, S2, S1]
         state_queue = deque([init_state] * Config.N_FRAMES, maxlen=Config.N_FRAMES)
-        epi_n_neg_rew = 0
+        epi_n_neg_rew = 0  # counts consecutive times agent got negative rewards
 
         while True:
             state_tensor = torch.Tensor(np.array(state_queue)).unsqueeze(0).to(device)
-            action = agent.act(state_tensor, is_only_exploit=True)
+            action = agent.act(state_tensor, is_only_exploit=True)  # queries \pi without exploring
             # (2) EXECUTE ACTION (for several steps)
             # (3) EVALUATE S' STATE, REWARD
 
